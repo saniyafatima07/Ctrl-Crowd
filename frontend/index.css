@@ -1,5 +1,4 @@
 :root {
-    /* Light Theme Variables */
     --light-bg: #f5f7fa;
     --light-text: #333333;
     --light-primary: #3a86ff;
@@ -10,7 +9,6 @@
     --light-hover: #f0f0f0;
     --light-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     
-    /* Dark Theme Variables */
     --dark-bg: #1a1a2e;
     --dark-text: #e6e6e6;
     --dark-primary: #4361ee;
@@ -37,7 +35,6 @@ body {
     flex-direction: column;
 }
 
-/* Light Theme Defaults */
 .light-theme {
     background-color: var(--light-bg);
     color: var(--light-text);
@@ -90,7 +87,6 @@ body {
     background-color: var(--light-hover);
 }
 
-/* Dark Theme */
 .dark-theme {
     background-color: var(--dark-bg);
     color: var(--dark-text);
@@ -144,7 +140,6 @@ body {
     background-color: var(--dark-hover);
 }
 
-/* Navigation Styles */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -240,7 +235,6 @@ body {
     background-color: var(--dark-text);
 }
 
-/* Main Content */
 main {
     flex: 1;
     padding: 2rem;
@@ -255,7 +249,6 @@ section {
     margin: 2rem 0;
 }
 
-/* Login Section */
 .login-section {
     display: flex;
     justify-content: center;
@@ -301,7 +294,6 @@ section {
     cursor: pointer;
 }
 
-/* Dashboard Section */
 .dashboard-section {
     padding: 1.5rem;
 }
@@ -345,7 +337,6 @@ section {
     position: relative;
 }
 
-/* Table Styles */
 .table-container {
     overflow-x: auto;
 }
@@ -362,7 +353,6 @@ table td {
     border-bottom: 1px solid;
 }
 
-/* About Section */
 .about-section {
     padding: 2rem 0;
 }
@@ -410,19 +400,16 @@ table td {
     margin-bottom: 1rem;
 }
 
-/* Footer */
 footer {
     text-align: center;
     padding: 1.5rem;
     margin-top: auto;
 }
 
-/* Helper Classes */
 .hidden {
     display: none;
 }
 
-/* Media Queries */
 @media screen and (max-width: 768px) {
     .navbar {
         padding: 1rem;
