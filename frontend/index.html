@@ -3,10 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ctrl-Crowd</title>
+    <title>Ctrl+Crowd | Edge Computing Crowd Estimation</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
-<body>
-    
+<body class="light-theme">
+    <nav class="navbar">
+        <div class="logo">
+            <h1>Ctrl+Crowd</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Home/Login Section -->
+        <section id="login" class="login-section">
+            <div class="login-container">
+                <h2>Login to Dashboard</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passcode">Passcode</label>
+                        <input type="password" id="passcode" name="passcode" required>
+                    </div>
+                    <button type="submit" class="btn-login">Login</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Dashboard Section (Hidden by default) -->
+        <section id="dashboard" class="dashboard-section hidden">
+            <h2>Crowd Estimation Dashboard</h2>
+            <div class="dashboard-controls">
+                <button id="graph-btn" class="dashboard-btn active">Graph</button>
+                <button id="heatmap-btn" class="dashboard-btn">Heatmap</button>
+                <button id="table-btn" class="dashboard-btn">Table</button>
+            </div>
+            
+            <div class="dashboard-content">
+                <div id="graph-view" class="dashboard-view">
+                    <h3>Crowd Density Over Time</h3>
+                    <div class="graph-container">
+                        <canvas id="crowd-graph"></canvas>
+                    </div>
+                </div>
+                
+                <div id="heatmap-view" class="dashboard-view hidden">
+                    <h3>Crowd Density Heatmap</h3>
+                    <div class="heatmap-container">
+                        <canvas id="crowd-heatmap"></canvas>
+                    </div>
+                </div>
+                
+                <div id="table-view" class="dashboard-view hidden">
+                    <h3>Crowd Data Table</h3>
+                    <div class="table-container">
+                        <table id="crowd-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Location</th>
+                                    <th>Crowd Count</th>
+                                    <th>Density Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crowd-data-body">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section (Hidden by default) -->
+        <section id="about" class="about-section hidden">
+            <div class="about-container">
+                <h2>About Ctrl+Crowd</h2>
+                <p>Ctrl+Crowd is an advanced crowd estimation system that uses edge computing technology to provide real-time crowd density analysis. Our system utilizes ESP32 webcams with embedded AI models to process crowd data at the edge, reducing latency and improving response times.</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-microchip"></i>
+                        <h3>Edge Processing</h3>
+                        <p>AI models run directly on ESP32 devices, processing crowd data locally before sending results to our servers.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Real-time Analytics</h3>
+                        <p>Monitor crowd density in real-time through intuitive visualizations and data tables.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h3>Heat Mapping</h3>
+                        <p>Visualize crowd concentration areas to identify hotspots and optimize resource allocation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Ctrl+Crowd. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
