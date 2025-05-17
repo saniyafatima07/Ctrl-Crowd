@@ -85,13 +85,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const passcode = document.getElementById('passcode').value;
         
         if (email && passcode) {
-            sessionStorage.setItem('isLoggedIn', 'true');
-
-            showSection('dashboard');
-            
-            navLinks.forEach(navLink => navLink.classList.remove('active'));
-            
-            loginForm.reset();
+            fetch('/verify-passcode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, passcode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    showSection('dashboard');
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    loginForm.reset();
+                    loadDashboardData();
+                } else {
+                    alert('Invalid passcode. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
         } else {
             alert('Please enter your email and passcode');
         }
@@ -102,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isLoggedIn) {
         showSection('dashboard');
         navLinks.forEach(navLink => navLink.classList.remove('active'));
+        loadDashboardData();
     }
     
     window.addEventListener('hashchange', function() {
@@ -148,4 +165,237 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    const graphBtn = document.getElementById('graph-btn');
+    const heatmapBtn = document.getElementById('heatmap-btn');
+    const tableBtn = document.getElementById('table-btn');
+    
+    const graphView = document.getElementById('graph-view');
+    const heatmapView = document.getElementById('heatmap-view');
+    const tableView = document.getElementById('table-view');
+    
+    graphBtn.addEventListener('click', function() {
+        graphView.classList.remove('hidden');
+        heatmapView.classList.add('hidden');
+        tableView.classList.add('hidden');
+        
+        graphBtn.classList.add('active');
+        heatmapBtn.classList.remove('active');
+        tableBtn.classList.remove('active');
+    });
+    
+    heatmapBtn.addEventListener('click', function() {
+        graphView.classList.add('hidden');
+        heatmapView.classList.remove('hidden');
+        tableView.classList.add('hidden');
+        
+        graphBtn.classList.remove('active');
+        heatmapBtn.classList.add('active');
+        tableBtn.classList.remove('active');
+    });
+    
+    tableBtn.addEventListener('click', function() {
+        graphView.classList.add('hidden');
+        heatmapView.classList.add('hidden');
+        tableView.classList.remove('hidden');
+        
+        graphBtn.classList.remove('active');
+        heatmapBtn.classList.remove('active');
+        tableBtn.classList.add('active');
+    });
+
+    let crowdChart;
+    let heatmapChart;
+    let crowdData = [];
+
+    function loadDashboardData() {
+        fetch('/crowd-data')
+            .then(response => response.json())
+            .then(data => {
+                crowdData = data;
+                updateDashboard(data);
+            })
+            .catch(error => {
+                console.error('Error loading data:', error);
+            });
+    }
+
+    function updateDashboard(data) {
+        updateGraph(data);
+        updateHeatmap(data);
+        updateTable(data);
+    }
+
+    function updateGraph(data) {
+        const ctx = document.getElementById('crowd-graph').getContext('2d');
+        
+        const locations = [...new Set(data.map(item => item.location))];
+        
+        const timestamps = [...new Set(data.map(item => item.timestamp))];
+        timestamps.sort();
+        
+        const datasets = locations.map(location => {
+            const locationData = data.filter(item => item.location === location);
+            const counts = timestamps.map(timestamp => {
+                const entry = locationData.find(item => item.timestamp === timestamp);
+                return entry ? entry.count : 0;
+            });
+            
+            return {
+                label: location,
+                data: counts,
+                borderColor: location === 'Main Entrance' ? '#3a86ff' : '#ff006e',
+                backgroundColor: location === 'Main Entrance' ? 'rgba(58, 134, 255, 0.2)' : 'rgba(255, 0, 110, 0.2)',
+                fill: true,
+                tension: 0.4
+            };
+        });
+        
+        if (crowdChart) crowdChart.destroy();
+        
+        crowdChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps.map(ts => ts.split(' ')[1]),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Crowd Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crowd Density Over Time'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            }
+        });
+    }
+
+    function updateHeatmap(data) {
+        const ctx = document.getElementById('crowd-heatmap').getContext('2d');
+        
+        const locations = [...new Set(data.map(item => item.location))];
+        
+        const timestamps = [...new Set(data.map(item => item.timestamp))];
+        timestamps.sort();
+        
+        const datasets = timestamps.map((timestamp, index) => {
+            const timestampData = data.filter(item => item.timestamp === timestamp);
+            
+            return {
+                label: timestamp.split(' ')[1], 
+                data: locations.map(location => {
+                    const entry = timestampData.find(item => item.location === location);
+                    return entry ? entry.count : 0;
+                }),
+                backgroundColor: getColor(index, timestamps.length)
+            };
+        });
+        
+        if (heatmapChart) heatmapChart.destroy();
+        
+        heatmapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: locations,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Location'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Crowd Count'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crowd Density Heatmap'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateTable(data) {
+        const tableBody = document.getElementById('crowd-data-body');
+        tableBody.innerHTML = '';
+        
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            
+            const timestampCell = document.createElement('td');
+            timestampCell.textContent = item.timestamp;
+            
+            const locationCell = document.createElement('td');
+            locationCell.textContent = item.location;
+            
+            const countCell = document.createElement('td');
+            countCell.textContent = item.count;
+            
+            const densityCell = document.createElement('td');
+            densityCell.textContent = item.density;
+            densityCell.style.fontWeight = 'bold';
+            
+            if (item.density === 'Low') {
+                densityCell.style.color = '#2dc937';
+            } else if (item.density === 'Medium') {
+                densityCell.style.color = '#e7b416';
+            } else if (item.density === 'High') {
+                densityCell.style.color = '#cc3232';
+            }
+            
+            row.appendChild(timestampCell);
+            row.appendChild(locationCell);
+            row.appendChild(countCell);
+            row.appendChild(densityCell);
+            
+            tableBody.appendChild(row);
+        });
+    }
+
+    function getColor(index, total) {
+        const hue = (index / total) * 240; 
+        return `hsla(${240 - hue}, 100%, 50%, 0.7)`;
+    }
 });
