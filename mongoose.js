@@ -5,14 +5,11 @@ const uri = process.env.MONGO_URI;
 
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/crowdDB', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        await mongoose.connect(uri);
         console.log('MongoDB connected');
     } catch (err) {
         console.error('MongoDB connection error:', err);
-        process.exit(1); // Stop the server if DB connection fails
+        process.exit(1); 
     }
 };
 
