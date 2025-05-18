@@ -1,8 +1,15 @@
 const mongoose = require('mongoose');
 
 const CrowdDataSchema = new mongoose.Schema({
-    timestamp: { type: Date, default: Date.now },
-    crowd_count: Number,
+    crowd_count: {
+        type: Number,
+        required: true,
+        set: v => Math.floor(v)
+      },
+      timestamp: {
+        type: String,
+        required: true
+      }
     // heatmap_csv: String 
 });
 
