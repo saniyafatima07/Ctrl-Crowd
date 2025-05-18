@@ -1,35 +1,35 @@
-import pymongo
-import pandas as pd
+import os
+import math
 import matplotlib.pyplot as plt
-from io import StringIO
+from dotenv import load_dotenv
+from pymongo import MongoClient
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client["crowdDB"]
-collection = db["crowddatas"]  # default collection name from model
+# Load DB link from .env
+load_dotenv()
+math = os.getenv("math")
 
-# Fetch all records
-data = list(collection.find())
+if not math:
+    raise ValueError("data not found")
 
-# Plot crowd count over time
-timestamps = [d["timestamp"] for d in data]
-counts = [d["crowd_count"] for d in data]
-8
-plt.figure(figsize=(10, 5))
-plt.plot(timestamps, counts, marker='o')
-plt.title("Crowd Count Over Time")
-plt.xlabel("Time")
-plt.ylabel("Crowd Count")
+# Connect to MongoDB
+client = MongoClient('mongodb+srv://saniyafatima07:JlekzM1AbWqHVywz@backupifydb.zb6y0le.mongodb.net')
+
+# Choose database and collection (replace these with your actual names)
+db = client["test"]
+collection = db["crowddatas"]
+
+# Fetch all data
+records = list(collection.find({}))
+
+# Extract time and crowd values
+x = [record["timestamp"] for record in records]
+y = [record["crowd_count"] for record in records]
+
+# Plot the data
+plt.plot(x, y, label='Crowd', marker='o', color='blue')
+plt.xlabel('Time')
+plt.ylabel('Crowd Count')
+plt.title('Crowd variation wrt time')
 plt.grid(True)
-plt.xticks(rotation=45)
-plt.tight_layout()
+plt.legend()
 plt.show()
-
-# Optional: Generate heatmap from one sample
-if data:
-    sample_csv = data[0]["heatmap_csv"]
-    df = pd.read_csv(StringIO(sample_csv))
-    pivot = df.pivot("y", "x", "intensity")
-    plt.imshow(pivot, cmap="hot", interpolation="nearest")
-    plt.title("Sample Heatmap from ESP32")
-    plt.colorbar()
-    plt.show()
