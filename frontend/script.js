@@ -360,36 +360,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTable(data) {
         const tableBody = document.getElementById('crowd-data-body');
         tableBody.innerHTML = '';
-        
+    
         data.forEach(item => {
             const row = document.createElement('tr');
-            
+    
             const timestampCell = document.createElement('td');
             timestampCell.textContent = item.timestamp;
-            
-            const locationCell = document.createElement('td');
-            locationCell.textContent = item.location;
-            
+    
             const countCell = document.createElement('td');
-            countCell.textContent = item.count;
-            
-            const densityCell = document.createElement('td');
-            densityCell.textContent = item.density;
-            densityCell.style.fontWeight = 'bold';
-            
-            if (item.density === 'Low') {
-                densityCell.style.color = '#2dc937';
-            } else if (item.density === 'Medium') {
-                densityCell.style.color = '#e7b416';
-            } else if (item.density === 'High') {
-                densityCell.style.color = '#cc3232';
-            }
-            
+            countCell.textContent = item.crowd_count;
+    
             row.appendChild(timestampCell);
-            row.appendChild(locationCell);
             row.appendChild(countCell);
-            row.appendChild(densityCell);
-            
+    
             tableBody.appendChild(row);
         });
     }

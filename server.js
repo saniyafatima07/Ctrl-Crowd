@@ -33,6 +33,19 @@ app.post('/verify-passcode', (req, res) => {
     }
 });
 
+app.get('/crowd-data', async (req, res) => {
+    try {
+        const data = await crowdData.find().sort({ timestamp: 1 });
+        const formatted = data.map(entry => ({
+            crowd_count: entry.crowd_count,
+            timestamp: entry.timestamp
+        }));
+        res.json(formatted);
+    } catch (err) {
+        res.status(500).json({ message: 'Error retrieving data' });
+    }
+});
+
 app.post('/crowd-data', async (req, res) => {
     try{
         const data = new crowdData(req.body);
@@ -48,25 +61,38 @@ app.post('/crowd-data', async (req, res) => {
 
 async function fetchAndStoreCrowdData() {
     try {
-        const response = await axios.get(process.env.RASP_API);
-        const espData = response.data;
-
-        if (!espData.timestamp || espData.crowd_count === undefined) {
-            console.error('Invalid data format received:', espData);
-            return;
+      const response = await axios.get(process.env.RASP_API);
+      const espDataArray = response.data;
+  
+      if (!Array.isArray(espDataArray)) {
+        console.error('Expected an array but got:', espDataArray);
+        return;
+      }
+  
+      for (const espData of espDataArray) {
+        if (
+          !espData.timestamp || 
+          espData.crowd_count === undefined ||
+          typeof espData.timestamp !== 'string' ||
+          typeof espData.crowd_count !== 'number'
+        ) {
+          console.error('Invalid data format or types received:', espData);
+          continue;  // skip invalid entries, keep processing others
         }
-
+  
         const newEntry = new crowdData({
-            timestamp: espData.timestamp,
-            crowd_count: espData.crowd_count
+          timestamp: espData.timestamp,
+          crowd_count: Math.floor(espData.crowd_count)
         });
-
+  
         await newEntry.save();
         console.log('Data saved from ESP32:', espData);
+      }
     } catch (error) {
-        console.error('Failed to fetch/store ESP32 data:', error.message);
+      console.error('Failed to fetch/store ESP32 data:', error.message);
     }
-}
+  }
+  
 
 setInterval(fetchAndStoreCrowdData, 10000);
 

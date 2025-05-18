@@ -343,8 +343,9 @@ section {
 }
 
 table {
-    width: 100%;
+    width: 70%;
     border-collapse: collapse;
+    margin-left: 180px;
 }
 
 table th,
