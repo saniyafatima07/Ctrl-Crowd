@@ -5,19 +5,20 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from pathlib import Path
 
+matplotlib.use('TkAgg')
 env_path = Path(__file__).resolve().parent/".env"
 load_dotenv(dotenv_path=env_path)
 
 
 # Load DB link from .env
 load_dotenv()
-math = os.getenv("math")
+MONGO_URI = os.getenv("MONGO_URI")
 
 if not math:
     raise ValueError("data not found")
 
 # Connect to MongoDB
-client = MongoClient(math)
+client = MongoClient(MONGO_URI)
 # Choose database and collection (replace these with your actual names)
 db = client["test"]
 collection = db["crowddatas"]
@@ -45,4 +46,6 @@ plt.ylabel('Crowd Count')
 plt.title('Crowd variation wrt time')
 plt.grid(True)
 plt.legend()
-plt.show()
+plt.savefig("output_plot.png")
+print("Plot saved to output_plot.png")
+
