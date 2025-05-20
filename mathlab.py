@@ -3,6 +3,11 @@ import math
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from pathlib import Path
+
+env_path = Path(__file__).resolve().parent/".env"
+load_dotenv(dotenv_path=env_path)
+
 
 # Load DB link from .env
 load_dotenv()
@@ -12,11 +17,19 @@ if not math:
     raise ValueError("data not found")
 
 # Connect to MongoDB
-client = MongoClient('mongodb+srv://saniyafatima07:JlekzM1AbWqHVywz@backupifydb.zb6y0le.mongodb.net')
-
+client = MongoClient(math)
 # Choose database and collection (replace these with your actual names)
 db = client["test"]
 collection = db["crowddatas"]
+
+
+
+# try:
+#     client.server_info()
+#     print("Connected")
+# except Exception as e:
+#     print("Failed to connect ")
+
 
 # Fetch all data
 records = list(collection.find({}))
